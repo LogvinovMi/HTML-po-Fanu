@@ -1,0 +1,265 @@
+$(function (){
+alert("Help guide the chicken to cross the road through all 10 levels to discover why the chicken really crossed the road.\n\nYou can click on the settings icon to toggle the controls visibility.")
+
+//The custom alert below was provided by @Burey
+/*$.alert({
+    theme: 'my-alert',
+    title: '<i>Prologue</i>',
+    content: 'Help guide the chicken to cross the road through all 10 levels to discover why the chicken really crossed the road.\n\nYou can click on the settings icon to toggle the controls visibility.',
+});*/
+
+//------foundation for game------//
+//declaring variables
+var body;
+var box;
+var game;
+var settings;
+var badge;
+var badgeText;
+var control = new Array();
+//equals to 60 frames per second
+var fps = (1000/60);
+
+function createWorld(){
+    //create elements
+    body = $("body");
+    box = $("<div></div>");
+    game = $("<canvas width='340' height='490'></canvas>");
+    settings = $("<div></div>");
+    badge = $("<div></div>");
+    badgeText = $("<span></span>");
+    troubleshoot = $("<p></p>");
+    for(g=0;g<4;g++){
+        control[g] = $("<div></div>");
+    }
+    //apply css
+    body.css({
+    "text-align":"center",
+    "background-color":"black"
+    });
+    box.css({
+    "width":"340px",
+    "height":"490px",
+    "background-color":"none",
+    "background-image":
+    "url('https://gavinchristians.com/sololearn/background.png')",
+    "display":"inline-block",
+    "position":"relative",
+    "z-index":"1"
+    });
+    game.css({
+    "width":"340px",
+    "height":"490px",
+    "background-color":"none",
+    "position":"absolute",
+    "left":"0",
+    "z-index":"2"
+    });
+    settings.css({
+    "width":"50px",
+    "height":"50px",
+    "background-color":"none",
+    "background-image":
+    "url('https://gavinchristians.com/sololearn/options.png')",
+    "background-size":"cover",
+    "position":"absolute",
+    "bottom":"0",
+    "left":"0",
+    "z-index":"5"
+    });
+    badge.css({
+    "width":"150px",
+    "height":"150px",
+    "background-color":"none",
+    "background-image":
+    "url('https://gavinchristians.com/sololearn/chickenbadge.png')",
+    "background-size":"cover",
+    "opacity":"0",
+    "transform":"left",
+    "-webkit-transform":"left",
+    "transition":"opacity 1s ease-in",
+    "-webkit-transition":"opacity 1s ease-in",
+    "position":"relative",
+    "top":"170px",
+    "left":"-150px",
+    "z-index":"5"
+    });
+    badgeText.css({
+    "width":"150px",
+    "text-algin":"center",
+    "color":"white",
+    "-webkit-text-stroke":"1px black",
+   "font-size":"28px",
+   "text-shadow":"3px 3px 0 #000,-1px -1px 0 #000,1px -1px 0 #000,-1px 1px 0 #000,1px 1px 0 #000",
+        "position":"absolute",
+        "bottom":"-10px",
+        "left":"0"
+    });
+    control[0].css({
+    "width":"340px",
+    "height":"150px",
+    "background-color":"none",
+    "background-image":
+    "url('https://gavinchristians.com/sololearn/up.png')",
+    "background-size":"cover",
+    "opacity":"0.2",
+    "position":"absolute",
+    "top":"0",
+    "left":"0",
+    "z-index":"4"
+    });
+    control[1].css({
+    "width":"170px",
+    "height":"190px",
+    "background-color":"none",
+    "background-image":
+    "url('https://gavinchristians.com/sololearn/right.png')",
+    "background-size":"cover",
+    "opacity":"0.2",
+    "position":"absolute",
+    "top":"150px",
+    "right":"0",
+    "z-index":"4"
+    });
+    control[2].css({
+    "width":"340px",
+    "height":"150px",
+    "background-color":"none",
+    "background-image":
+    "url('https://gavinchristians.com/sololearn/down.png')",
+    "background-size":"cover",
+    "opacity":"0.2",
+    "position":"absolute",
+    "bottom":"0",
+    "left":"0",
+    "z-index":"4"
+    });
+    control[3].css({
+    "width":"170px",
+    "height":"190px",
+    "background-color":"none",
+    "background-image":
+    "url('https://gavinchristians.com/sololearn/left.png')",
+    "background-size":"cover",
+    "opacity":"0.2",
+    "position":"absolute",
+    "top":"150px",
+    "left":"0",
+    "z-index":"4"
+    });
+    troubleshoot.css({
+       "text-align":"left",
+       "background-color":
+       "rgba(255,255,255,0.5)",
+       "color":"darkred",
+       "position":"absolute",
+       "top":"0px",
+       "left":"0px",
+       "z-index":"3"
+    });
+    //elements to DOM
+    body.append(box);
+    box.append(game);
+    box.append(settings);
+    box.append(badge);
+    badge.append(badgeText);
+    for(a=0;a<4;a++){
+        box.append(control[a]);
+    }
+    box.append(troubleshoot);
+}
+createWorld();
+    
+    //Controls for PC
+    $(document).on("keydown",function(e){
+        //left arrow (37)
+        if(e.which==37){
+            chicken("left");
+            /*The following suggestion has
+            been suggested by @Nomeh Uchenna
+            Gabriel, to prevent the player 
+            from increasing it's moveCount 
+            when trying to move back when 
+            still on the first line.*/
+            if(moveCount>0){
+            moveCount-=2;
+            }
+            else {
+                moveCount-=0;
+            }
+        }
+        //right arrow (39)
+        else if(e.which==39){
+            chicken("right")
+            moveCount-=2;
+        }
+        //down arrow (40)
+        else if(e.which==40){
+            chicken("down");
+            moveCount-=2;
+        }
+        //up arrow (38)
+        else if(e.which==38){
+            chicken("up");
+            moveCount-=2;
+        }
+    });
+    //Controls for mobile
+    control[0].on("touchstart",function (){
+        //--Part of the game--//
+        chicken("up");
+        moveCount-=2;
+        //-------------------//
+    });
+    control[1].on("touchstart",function (){
+        //--Part of the game--//
+        chicken("right")
+        moveCount-=2;
+        //-------------------//
+    });
+    control[2].on("touchstart",function (){
+        //--Part of the game--//
+        chicken("down");
+        moveCount-=2;
+        //-------------------//
+    });
+    control[3].on("touchstart",function (){
+        //--Part of the game--//
+        chicken("left");
+        /*The following suggestion has
+        been suggested by @Nomeh Uchenna
+        Gabriel, to prevent the player 
+        from increasing it's moveCount 
+        when trying to move back when 
+        still on the first line.*/
+        if(moveCount>0){
+        moveCount-=2;
+        }
+        else {
+            moveCount-=0;
+        }
+        //-------------------//
+    });
+    settings.on("click",function (){
+        //--Part of the game--//
+        if($tate[5]==false){
+            for(t=0;t<4;t++){
+                control[t].css("opacity","0");
+            }
+            $tate[5]=true;
+        }else{
+        for(t=0;t<4;t++){
+                control[t].css("opacity","0.2");
+            }
+            $tate[5]=false;
+        }
+        //-------------------//
+    });
+    
+    badge.on("click",function (){
+        //--Part of the game--//
+        alert("Congratulations! You've unlocked the exclusive 'Chicken Badge!'");
+        //-------------------//
+    });
+
+//for dr
